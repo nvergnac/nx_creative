@@ -16,7 +16,7 @@ def is_valid_lead(lead_row, customer_data, postal_code_set):
     datetime_date = get_datetime(lead_row['Date'])
     if datetime_date > (datetime.now() - timedelta(days=3)) and lead_row['Sent'] == '':
         if postal_code_set != 0:
-            postal_code = get_postal_code_set(lead_row['5) Code postal'])
+            postal_code = get_postal_code(lead_row['5) Code postal'])
             if postal_code in postal_code_set:
                 return True
             else:
@@ -26,13 +26,13 @@ def is_valid_lead(lead_row, customer_data, postal_code_set):
 
 
 def get_postal_code(postal_code):
-    if postal_code.isnumeric() is True:
-        if len(postal_code) == 4:
-            return int(postal_code[0:1])
-        elif len(postal_code) == 5:
-            return int(postal_code[0:2])
+    if isinstance(postal_code, int) is True:
+        str_postal_code = str(postal_code)
+        if len(str_postal_code) == 4:
+            return int(str_postal_code[0:1])
+        elif len(str_postal_code) == 5:
+            return int(str_postal_code[0:2])
     return 0
-
 
 def get_postal_code_set(customer_data):
     if customer_data['region'] != '':
@@ -70,7 +70,7 @@ def get_insert_row_nb(sheet):
 
 
 if __name__ == "__main__":
-    code = get_postal_code('88360')
+    code = get_postal_code('88360 lourdes')
     print(code)
     print(type(code))
     pass

@@ -28,7 +28,6 @@ def get_client_data(gspread_client, client_name):
     client_data = []
     for client in client_database:
         if client_name == client['customerName']:
-            print(client['customerName'])
             client_data.append(client)
     if len(client_data) == 1:
         return client_data[0]
@@ -64,7 +63,7 @@ def write_lead_API(gspread_client, customer_data, lead_data):
 def write_lead_CSV(customer_data, lead_data, lead_nb, options):
     csv_filename = 'lead-extract_' + \
         customer_data['customerName'] + '_' + \
-        str(datetime.now().strftime("%d_%m_%Y_%H:%M:%S")) + '.csv'
+        str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S")) + '.csv'
     with open(csv_filename, 'w') as f:
         fieldnames = ['Date', '1) Isolation pour', '2) Quel(s) type(s) de surface à isoler ?',
                       '3) Nom', '4) Prénom', '5) Code postal', '6) Numéro de téléphone', '7) Email', 'Sent']
@@ -90,8 +89,7 @@ def write_lead_CSV(customer_data, lead_data, lead_nb, options):
 def get_available_leads(gspread_client, customer_data, options):
     valid_lead = []
     available_leads = 0
-    print(customer_data['leadSource'])
-    sheet = gspread_client.open(customer_data['leadSource']).sheet1
+    sheet = gspread_client.open_by_key(customer_data['sourceId']).sheet1
     ws = sheet.get_all_records()
     postal_code_set = utils_fct.get_postal_code_set(customer_data)
     for lead in ws:
@@ -102,7 +100,8 @@ def get_available_leads(gspread_client, customer_data, options):
     lead_nb = int(
         input("Entrez un nombre (max:{}): \n".format(available_leads)))
     #write_lead_API(gspread_client, data, valid_lead)
-    write_lead_CSV(customer_data, valid_lead, lead_nb, options)
+    if lead_nb > 0:
+        write_lead_CSV(customer_data, valid_lead, lead_nb, options)
 
 
 def get_args():
@@ -112,7 +111,7 @@ def get_args():
     parser.add_argument(
         "--premium", help="Selectionne les leads les plus récents.", action="store_true")
     parser.add_argument(
-        "--rand", help="Selectionne les leads les plus anciens.", action="store_true")
+        "--rand", help="Selectionne les leads aléatoirement parmi ceux disponibles.", action="store_true")
     return parser.parse_args()
 
 
@@ -127,13 +126,11 @@ def get_args():
 
 if __name__ == "__main__":
     options = get_args()
-    print(options.premium)
     gspread_client = init()
     customer_data = get_client_data(gspread_client, options.client_name)
     if customer_data == 0:
         sys.exit("Le client {} est introuvable dans la base de client.".format(
             options.client_name))
-    print(customer_data)
     get_available_leads(gspread_client, customer_data, options)
 
     pass
