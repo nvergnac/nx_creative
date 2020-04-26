@@ -33,15 +33,15 @@ source .venv/bin/activate
 
 Extraction simple (sélection des leads les plus anciens):
 ```python
-python sheets NOM_DUCLIENT
+python sheets NOM_DU_CLIENT
 ```
 
 Extraction simple (sélection des leads les plus récents):
 ```python
-python sheets NOM_DUCLIENT --premium
+python sheets NOM_DU_CLIENT --premium
 ```
 
 Extraction simple (sélection des leads aléatoirement):
 ```python
-python sheets NOM_DUCLIENT --rand
+python sheets NOM_DU_CLIENT --rand
 ```
