@@ -31,17 +31,17 @@ source .venv/bin/activate
 
 ## Usage
 
-Extraction simple (sélection des leads les plus anciens):
+Extraction des leads les plus anciens:
 ```python
-python sheets NOM_DU_CLIENT
+python distrib.py NOM_DU_CLIENT
 ```
 
-Extraction simple (sélection des leads les plus récents):
+Extraction des leads les plus récents:
 ```python
-python sheets NOM_DU_CLIENT --premium
+python distrib.py NOM_DU_CLIENT --premium
 ```
 
-Extraction simple (sélection des leads aléatoirement):
+Extraction des leads aléatoirement:
 ```python
-python sheets NOM_DU_CLIENT --rand
+python distrib.py NOM_DU_CLIENT --rand
 ```
