@@ -14,7 +14,7 @@ def get_datetime(date):
 
 def is_valid_lead(lead_row, customer_data, postal_code_set):
     datetime_date = get_datetime(lead_row['Date'])
-    if datetime_date > (datetime.now() - timedelta(days=3)) and lead_row['Sent'] == '':
+    if datetime_date > (datetime.now() - timedelta(days=3)) and lead_row['sent'] == '':
         if postal_code_set != 0:
             postal_code = get_postal_code(lead_row['5) Code postal'])
             if postal_code in postal_code_set:
@@ -68,9 +68,11 @@ def get_insert_row_nb(sheet):
             insert_row += 1
     return row_nb
 
+def convert_date(lead_data):
+    lead_source = lead_data
+    for lead in lead_source:
+        lead['Date'] = datetime.strptime(lead['Date'], '%m/%d/%y %I:%M%p')
+    return lead_source
 
 if __name__ == "__main__":
-    code = get_postal_code('88360 lourdes')
-    print(code)
-    print(type(code))
     pass

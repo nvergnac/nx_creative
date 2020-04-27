@@ -66,21 +66,21 @@ def write_lead_CSV(customer_data, lead_data, lead_nb, options):
         str(datetime.now().strftime("%d_%m_%Y_%H_%M_%S")) + '.csv'
     with open(csv_filename, 'w') as f:
         fieldnames = ['Date', '1) Isolation pour', '2) Quel(s) type(s) de surface à isoler ?',
-                      '3) Nom', '4) Prénom', '5) Code postal', '6) Numéro de téléphone', '7) Email', 'Sent']
+                      '3) Nom', '4) Prénom', '5) Code postal', '6) Numéro de téléphone', '7) Email', 'sent']
         thewriter = csv.DictWriter(f, fieldnames)
         thewriter.writeheader()
 
-        assigned_lead = 0
-        lead_source = lead_data
+        lead_source = utils_fct.convert_date(lead_data)
         if options.premium is True:
             premium_lead_data = sorted(
-                lead_data, key=itemgetter('Date'), reverse=True)
+                lead_source, key=itemgetter('Date'), reverse=True)
             lead_source = premium_lead_data
         elif options.rand is True:
             random.shuffle(lead_data)
 
+        assigned_lead = 0
         for lead in lead_source:
-            lead['Sent'] = customer_data['customerName']
+            lead['sent'] = customer_data['customerName']
             thewriter.writerow(lead)
             assigned_lead += 1
             if assigned_lead == lead_nb:
