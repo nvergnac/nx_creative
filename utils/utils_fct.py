@@ -71,7 +71,10 @@ def get_insert_row_nb(sheet):
 def convert_date(lead_data):
     lead_source = lead_data
     for lead in lead_source:
-        lead['Date'] = datetime.strptime(lead['Date'], '%m/%d/%y %I:%M%p')
+        try:
+            lead['Date'] = datetime.strptime(lead['Date'], '%m/%d/%y %I:%M%p')
+        except ValueError:
+            lead['Date'] = datetime.strptime(lead['Date'], '%m/%d/%y %H:%M')
     return lead_source
 
 if __name__ == "__main__":
