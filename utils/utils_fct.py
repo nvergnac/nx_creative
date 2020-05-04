@@ -14,7 +14,7 @@ def get_datetime(date):
 
 def is_valid_lead(lead_row, customer_data, postal_code_set):
     datetime_date = get_datetime(lead_row['Date'])
-    if datetime_date > (datetime.now() - timedelta(days=3)) and lead_row['sent'] == '':
+    if datetime_date > (datetime.now() - timedelta(days=30)) and lead_row['sent'] == '':
         if postal_code_set != 0:
             postal_code = get_postal_code(lead_row['5) Code postal'])
             if postal_code in postal_code_set:
