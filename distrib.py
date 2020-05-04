@@ -81,6 +81,7 @@ def write_lead_CSV(customer_data, lead_data, lead_nb, options):
         assigned_lead = 0
         for lead in lead_source:
             lead['sent'] = customer_data['customerName']
+            lead['6) Numéro de téléphone'] = str(lead['6) Numéro de téléphone']).zfill(10)
             thewriter.writerow(lead)
             assigned_lead += 1
             if assigned_lead == lead_nb:
