@@ -60,7 +60,7 @@ def write_lead_CSV(customer_data, lead_data, lead_nb, options):
         fieldnames = ['Date', '1) Isolation pour', '2) Quel(s) type(s) de surface à isoler ?',
                       '3) Nom', '4) Prénom', '5) Code postal', '6) Numéro de téléphone', '7) Email', 'sent']
         thewriter = csv.DictWriter(f, fieldnames)
-        # thewriter.writeheader()
+        thewriter.writeheader()
 
         lead_source = utils_fct.convert_date(lead_data)
         if options.premium is True:
@@ -71,12 +71,17 @@ def write_lead_CSV(customer_data, lead_data, lead_nb, options):
             random.shuffle(lead_data)
 
         assigned_lead = 0
+        mails = set()
         for lead in lead_source:
-            lead['sent'] = customer_data['customerName']
-            lead['6) Numéro de téléphone'] = str(
-                lead['6) Numéro de téléphone']).zfill(10)
-            thewriter.writerow(lead)
-            assigned_lead += 1
+            if lead['7) Email'] in mails:
+                print("Attention, un doublon a été détecté et ignoré : {}".format(lead['7) Email']))
+            else: 
+                lead['sent'] = customer_data['customerName']
+                lead['6) Numéro de téléphone'] = str(
+                    lead['6) Numéro de téléphone']).zfill(10)
+                thewriter.writerow(lead)
+                assigned_lead += 1
+                mails.add(lead['7) Email'])
             if assigned_lead == lead_nb:
                 break
 
@@ -98,7 +103,8 @@ def get_available_leads(gspread_client, customer_data, options):
         input("Entrez un nombre (max:{}): \n".format(available_leads)))
     if lead_nb > 0:
         lead_csv = write_lead_CSV(customer_data, valid_lead, lead_nb, options)
-        write_lead_API(gspread_client, customer_data, lead_csv)
+        if utils_fct.ask_user() is True:
+            write_lead_API(gspread_client, customer_data, lead_csv)
 
 
 def get_args():

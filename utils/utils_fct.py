@@ -2,13 +2,28 @@ from datetime import datetime, timedelta
 import gspread
 
 
+def ask_user():
+    check = str(input(
+        "Voulez-vous inscrire les leads automatiquement dans la Google Sheet ? (y/n):")).lower().strip()
+    try:
+        if check[0] == 'y':
+            return True
+        elif check[0] == 'n':
+            return False
+        else:
+            print("Please enter valid inputs : 'y' or 'n'")
+            return ask_user()
+    except Exception as error:
+        print("Please enter valid inputs : 'y' or 'n'")
+        print(error)
+        return ask_user()
+
+
 def get_datetime(date):
     try:
         datetime_object = datetime.strptime(date, '%m/%d/%y %H:%M')
-    except ValueError as ve:
-        #print('ValueError Raised:', ve)
+    except ValueError:
         datetime_object = datetime.strptime(date, '%m/%d/%y %I:%M%p')
-        # print(datetime_object)
     return datetime_object
 
 
@@ -33,6 +48,7 @@ def get_postal_code(postal_code):
         elif len(str_postal_code) == 5:
             return int(str_postal_code[0:2])
     return 0
+
 
 def get_postal_code_set(customer_data):
     if customer_data['region'] != '':
@@ -61,18 +77,19 @@ def insert_lead(sheet, row, lead, customer_data):
 
 def insert_lead_in_sheet(sheet, leads):
     lead_ws = sheet.get_all_records()
-    #On recupère la ligne a laquelle on souhaite insérer les leads attribués
+    # On recupère la ligne a laquelle on souhaite insérer les leads attribués
     row_ins = len(lead_ws) + 2
-    #On définit la range dans laquelle vont s'inscrire les nouveaux leads attribués
+    # On définit la range dans laquelle vont s'inscrire les nouveaux leads attribués
     cell_range = 'A' + str(row_ins) + ':I' + str(len(leads) + row_ins - 1)
     cells = sheet.range(cell_range)
-    #On "flatten" notre liste de leads à attribué que l'on récupère depuis le csv
+    # On "flatten" notre liste de leads à attribué que l'on récupère depuis le csv
     flattened_data = [lead_info for lead in leads for lead_info in lead]
-    #Pour chaque valeur des cellules de notre range cible, on met à jour la nouvelle valeur de chaque cellule
+    # Pour chaque valeur des cellules de notre range cible, on met à jour la nouvelle valeur de chaque cellule
     for x in range(len(flattened_data)):
         cells[x].value = flattened_data[x]
-    #On fait l'appel à l'API pour ecrire dans la sheet
+    # On fait l'appel à l'API pour ecrire dans la sheet
     sheet.update_cells(cells)
+
 
 def convert_date(lead_data):
     lead_source = lead_data
@@ -82,6 +99,7 @@ def convert_date(lead_data):
         except ValueError:
             lead['Date'] = datetime.strptime(lead['Date'], '%m/%d/%y %H:%M')
     return lead_source
+
 
 if __name__ == "__main__":
     pass
