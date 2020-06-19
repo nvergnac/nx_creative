@@ -1,15 +1,13 @@
-import gspread
 import argparse
-import sys
+import csv
 import random
-from pprint import pprint
+import sys
 from datetime import datetime, timedelta
 from operator import itemgetter
-import csv
+from pprint import pprint
 
+import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-
-
 from utils import utils_fct
 
 
@@ -45,19 +43,13 @@ def get_client_data(gspread_client, client_name):
     return 0
 
 
-def write_lead_API(gspread_client, customer_data, lead_data):
-    print(customer_data)
-    lead_sheet = gspread_client.open('Leads distribués').sheet1
-    row_nb = utils_fct.get_insert_row_nb(lead_sheet)
-    for lead in lead_data:
-        print(lead)
-        utils_fct.insert_lead(lead_sheet, row_nb, lead, customer_data)
-        row_nb += 1
-        if row_nb > 4:
-            print(row_nb)
-            break
-        # exit(0)
-        #lead_sheet.update_cell(2, 1, lead_data['Date'])
+def write_lead_API(gspread_client, customer_data, csv_source):
+    lead_sheet = gspread_client.open_by_key(
+        customer_data['sourceId']).get_worksheet(1)
+    with open(csv_source) as csv_file:
+        leads_csv = csv.reader(csv_file, delimiter=',')
+        leads = [lead for lead in leads_csv]
+        utils_fct.insert_lead_in_sheet(lead_sheet, leads)
 
 
 def write_lead_CSV(customer_data, lead_data, lead_nb, options):
@@ -68,7 +60,7 @@ def write_lead_CSV(customer_data, lead_data, lead_nb, options):
         fieldnames = ['Date', '1) Isolation pour', '2) Quel(s) type(s) de surface à isoler ?',
                       '3) Nom', '4) Prénom', '5) Code postal', '6) Numéro de téléphone', '7) Email', 'sent']
         thewriter = csv.DictWriter(f, fieldnames)
-        thewriter.writeheader()
+        # thewriter.writeheader()
 
         lead_source = utils_fct.convert_date(lead_data)
         if options.premium is True:
@@ -81,11 +73,14 @@ def write_lead_CSV(customer_data, lead_data, lead_nb, options):
         assigned_lead = 0
         for lead in lead_source:
             lead['sent'] = customer_data['customerName']
-            lead['6) Numéro de téléphone'] = str(lead['6) Numéro de téléphone']).zfill(10)
+            lead['6) Numéro de téléphone'] = str(
+                lead['6) Numéro de téléphone']).zfill(10)
             thewriter.writerow(lead)
             assigned_lead += 1
             if assigned_lead == lead_nb:
                 break
+
+    return csv_filename
 
 
 def get_available_leads(gspread_client, customer_data, options):
@@ -101,9 +96,9 @@ def get_available_leads(gspread_client, customer_data, options):
     print("Il y a {} leads disponibles, combien souhaitez-vous en extraire ?".format(available_leads))
     lead_nb = int(
         input("Entrez un nombre (max:{}): \n".format(available_leads)))
-    #write_lead_API(gspread_client, data, valid_lead)
     if lead_nb > 0:
-        write_lead_CSV(customer_data, valid_lead, lead_nb, options)
+        lead_csv = write_lead_CSV(customer_data, valid_lead, lead_nb, options)
+        write_lead_API(gspread_client, customer_data, lead_csv)
 
 
 def get_args():
@@ -115,15 +110,6 @@ def get_args():
     parser.add_argument(
         "--rand", help="Selectionne les leads aléatoirement parmi ceux disponibles.", action="store_true")
     return parser.parse_args()
-
-
-# def to_be_defined():
- #   pprint(data[0]['leadsSource'])
-  #  sheet_mur_placo = client.open(data[0]['leadsSource']).sheet1
-   # data_mur_placo = sheet_mur_placo.get_all_records()
-    #numRow = sheet_mur_placo.row_count()
-
-    # print(len(data_mur_placo))
 
 
 if __name__ == "__main__":

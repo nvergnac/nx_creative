@@ -59,14 +59,20 @@ def insert_lead(sheet, row, lead, customer_data):
     sheet.update_cell(row, 9, customer_data['customerName'])
 
 
-def get_insert_row_nb(sheet):
+def insert_lead_in_sheet(sheet, leads):
     lead_ws = sheet.get_all_records()
-    row_nb = 2
-    for row_nb, row_value in enumerate(lead_ws, 0):
-        if row_value['Date'] is not None:
-            print("Valeur : {} + ' a la ligne : {}".format(row_value, row_nb))
-            insert_row += 1
-    return row_nb
+    #On recupère la ligne a laquelle on souhaite insérer les leads attribués
+    row_ins = len(lead_ws) + 2
+    #On définit la range dans laquelle vont s'inscrire les nouveaux leads attribués
+    cell_range = 'A' + str(row_ins) + ':I' + str(len(leads) + row_ins - 1)
+    cells = sheet.range(cell_range)
+    #On "flatten" notre liste de leads à attribué que l'on récupère depuis le csv
+    flattened_data = [lead_info for lead in leads for lead_info in lead]
+    #Pour chaque valeur des cellules de notre range cible, on met à jour la nouvelle valeur de chaque cellule
+    for x in range(len(flattened_data)):
+        cells[x].value = flattened_data[x]
+    #On fait l'appel à l'API pour ecrire dans la sheet
+    sheet.update_cells(cells)
 
 def convert_date(lead_data):
     lead_source = lead_data
