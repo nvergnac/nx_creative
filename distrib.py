@@ -21,7 +21,7 @@ def init():
 
 
 def get_client_data(gspread_client, client_name):
-    sheet = gspread_client.open("Base donnée client Leads").sheet1
+    sheet = gspread_client.open_by_key("1ZUzfATNwthThvURTfHStZ7QpkCExmMR1xTs3x2ZPXEw").sheet1
     client_database = sheet.get_all_records()
     client_data = []
     for client in client_database:
