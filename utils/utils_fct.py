@@ -28,11 +28,14 @@ def get_datetime(date):
         except ValueError:
             try:
                 datetime_object = datetime.strptime(date, '%m/%d/%Y %H:%M:%S')
-            except ValueError as e:
+            except ValueError:
                 try:
                     datetime_object = datetime.strptime(date, '%m/%d/%Y %H:%M')
-                except ValueError as e:
-                    print("Probleme de format de date sur le fichier source des leads : {}\nVeuillez contacter Nicolas pour corriger le probleme ou essayez de changer manuellement le format de date dans la Google Sheet (Format > Nombres > Autres formats > Autre formats de dates et d'heures".format(e))
+                except ValueError:
+                    try:
+                        datetime_object = datetime.strptime(date, '%d/%m/%Y %H:%M:%S')
+                    except ValueError as e:
+                        print("Probleme de format de date sur le fichier source des leads : {}\nVeuillez contacter Nicolas pour corriger le probleme ou essayez de changer manuellement le format de date dans la Google Sheet (Format > Nombres > Autres formats > Autre formats de dates et d'heures".format(e)) 
     return datetime_object
 
 
@@ -115,8 +118,10 @@ def convert_date(lead_data):
                     try:
                         lead['Date'] = datetime.strptime(lead['Date'], '%m/%d/%Y %H:%M')
                     except ValueError:
-                        print("Probleme de date")
-
+                        try:
+                            lead['Date'] = datetime.strptime(lead['Date'], '%d/%m/%Y %H:%M:%S')
+                        except:
+                            print("Probleme de date")
     return lead_source
 
 
